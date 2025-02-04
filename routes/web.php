@@ -4,8 +4,11 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\user\userController;
 use App\Http\Controllers\admin\adminController;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\admin\PostController;
 
-use App\Http\Controllers\admin\usermanage;
+use App\Http\Controllers\user\BlogPostsController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,9 +32,25 @@ Route::middleware(['auth', 'user'])->group(function () {
 });
 
 Route::middleware(['auth','admin'])->group(function(){
-    Route::get('/admin/dashboard',[adminController::class, 'index'])->name('admin.dashboard');
-
-    Route::resource('/admin/users', usermanage::class);
-
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('dashboard', [adminController::class, 'index'])->name('dashboard');
+        Route::resource('users', adminController::class);
+        Route::resource('posts', PostController::class);
+    });
+    
 });
+
+
+Route::get('/blogs', [BlogPostsController::class, 'index'])->name('blogs.index');
+Route::get('/blogs/{id}', [BlogPostsController::class, 'show'])->name('blogs.show');
+
+
+
+Route::post('/logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/login')->with('success', 'You have been logged out.');
+})->name('logout');
+
 

@@ -16,8 +16,10 @@ class userMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::user()->usertype == 'user'){
-            return $next($request);
+        if (Auth::user()->usertype == 'user') {
+            return $next($request); 
+        } elseif (Auth::user()->usertype == 'admin') {
+            return redirect()->route('admin.dashboard'); 
         }
         return redirect()->back();
     }
